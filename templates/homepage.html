@@ -148,13 +148,13 @@
               id="addNewShift"
               tabindex="-1"
               role="dialog"
-              aria-labelledby="exampleModalLabel"
+              aria-labelledby="addNewShiftLabel"
               aria-hidden="true"
             >
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
+                    <h5 class="modal-title" id="addNewShiftLabel">
                       Add A New Shift
                     </h5>
                   </div>
@@ -195,16 +195,92 @@
                       >
                         Close
                       </button>
-                      <input type="submit" class="btn btn-primary" value="Add New Shift">
-                    </input>
+                      <input
+                        type="submit"
+                        class="btn btn-primary"
+                        value="Add New Shift"
+                      />
                     </div>
                   </form>
                 </div>
               </div>
             </div>
-            <a class="btn btn-outline-primary btn-lg col m-3">
+            <button
+              class="btn btn-outline-primary btn-lg col m-3"
+              data-bs-toggle="modal"
+              data-bs-target="#addStaffToShift"
+            >
               <span class="fs-3">Add Staff To Shift +</span>
-            </a>
+            </button>
+            <!-- Modal -->
+            <div
+              class="modal fade"
+              id="addStaffToShift"
+              tabindex="-1"
+              role="dialog"
+              aria-labelledby="addStaffToShiftLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addStaffToShiftLabel">
+                      Add A New Shift
+                    </h5>
+                  </div>
+                  <form action="/addStaffToShift" method="POST">
+                    <div class="modal-body">
+                      <div class="input-group p-2">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Staff </span>
+                        </div>
+                        <select
+                          id="staff"
+                          name="staff"
+                          required
+                          class="form-control"
+                        >
+                          <option value="Staff A">Staff A</option>
+                          <option value="Staff B">Staff B</option>
+                          <option value="Staff C">Staff C</option>
+                          <option value="Staff D">Staff D</option>
+                        </select>
+                      </div>
+                      <div class="input-group p-2">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Shift </span>
+                        </div>
+                        <select
+                          id="shift"
+                          name="shift"
+                          required
+                          class="form-control"
+                        >
+                          <option value="Shift A">Shift A</option>
+                          <option value="Shift B">Shift B</option>
+                          <option value="Shift C">Shift C</option>
+                          <option value="Shift D">Shift D</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Close
+                      </button>
+                      <input
+                        type="submit"
+                        class="btn btn-primary"
+                        value="Request Staff To Shift"
+                      />
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div
