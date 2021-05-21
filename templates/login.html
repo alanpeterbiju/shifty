@@ -7,33 +7,23 @@
     <title>Login Page - Shifty</title>
   </head>
   <body>
-    <div
-      class="container-fluid"
-      style="background-image: url(bg-img.jpg); height: 100vh"
-    >
+    <div class="container-fluid"style="background-image: url(static/images/bg-img.jpg); height: 100vh">
       <div class="row p-2 align-items-center" style="height: 100%">
-        <div class="col"></div>
+        <div class="col">
+          
+        </div>
         <div class="col bg-white m-5 p-5 rounded text-center">
           <div class="p-2">
-            <img
-              src="logo.png"
-              class="img-thumbnail rounded-circle"
-              style="width: 100px; height: 100px"
-            />
+            <img src="{{url_for('static', filename='images/logo.png')}}" class="img-thumbnail rounded-circle" style="width: 100px; height: 100px"/>
           </div>
-          <form action="/login" method="POST">
+          <form action="" method="POST">
             <div class="input-group p-2">
               <div class="input-group-prepend">
                 <span class="input-group-text">Email </span>
               </div>
-              <input
-                type="text"
-                id="email"
-                name="email"
-                required
-                class="form-control"
+              <input type="text" id="email" name="email" required class="form-control"
                 placeholder="Enter your email here..."
-              />
+                value="{{request.form.email }}"/>
             </div>
             <div class="input-group p-2">
               <div class="input-group-prepend">
@@ -46,23 +36,27 @@
                 required
                 class="form-control"
                 placeholder="Enter your password here..."
-              />
+                value="{{request.form.password }}"/>
             </div>
             <div class="mt-3">
               <div class="input-group p-2">
                 <input
                   type="submit"
                   value="Login"
-                  class="btn btn-outline-primary col-12"
-                />
+                  class="btn btn-outline-primary col-12"/>
               </div>
-              <div class="input-group p-2">
+              <!-- <div class="input-group p-2">
+                <a href="/register" class="btn btn-outline-primary col-12"
+                  >Register A New Account</a
+                >
+              </div> -->
+            </div>
+          </form>
+                        <div class="input-group p-2">
                 <a href="/register" class="btn btn-outline-primary col-12"
                   >Register A New Account</a
                 >
               </div>
-            </div>
-          </form>
         </div>
       </div>
     </div>
