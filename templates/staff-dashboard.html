@@ -11,10 +11,14 @@
   <link rel="icon" href="../static/images/logo.svg" type="image/gif" sizes="16x16">
 
   <!-- Bootstrap core CSS -->
+  <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+
+  <!-- Custom styles for this template -->
   <link href="../static/stylesheet/css/dashboard-btn.css" rel="stylesheet">
   <link href="../static/stylesheet/css/schedule-table.css" rel="stylesheet">
   <link href="../static/stylesheet/css/sidenav.css" rel="stylesheet">
-  <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../static/stylesheet/css/staff-dashboard.css" rel="stylesheet">
 
   <link href="https://cdn.jsdelivr.net/npm/handsontable@8.4.0/dist/handsontable.full.min.css" rel="stylesheet"
     media="screen">
@@ -57,16 +61,12 @@
       }
     }
   </style>
-
-
-  <!-- Custom styles for this template -->
-  <link href="../static/stylesheet/css/dashboard.css" rel="stylesheet">
 </head>
 
-<body>
 
+
+<body>
   <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <img src="../static/images/logo.svg" alt="Shifty logo" width="30" height="30">
     <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Shifty</a>
     <ul class="navbar-nav px-3">
       <li class="nav-item text-nowrap">
@@ -76,45 +76,39 @@
   </header>
  
   <div class="alert alert-success" id="success" style="display:none;" role="alert">
-  You have successfull assigned a new shift.
+    You have successfull sent a availability preference to your manager.
   </div>
+  <div class="alert alert-success" id="success-remove" style="display:none;" role="alert">
+    You have successfull removed a shift.
+  </div>
+  <div class="alert alert-success" id="accept-request" style="display:none;" role="alert">
+    You have successfully accepted your shift
+  </div>
+  <div class="alert alert-warning" id="decline-request" style="display:none;" role="alert">
+    You have successfully declined your shift
+  </div>
+
+
 
   <!-- Add new shift side bar -->
   <div id="mySidenav" class="sidenav">
-    
-    <!-- <a id="close-btn" href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a> -->
-    <h3 class="text-center">Add new roster</h3>
+    <h3 class="text-center">Add availability</h3>
 
 
-    <form action="{{ url_for('home') }}" method="post" class="d-flex flex-column bd-highlight mb-3" id="addNewRoster" onsubmit="addNewRoster()">
-      <div class="p-2 bd-highlight my-3">
-        <label for="staffInput" class="form-label">Staff Name</label>
-        <select name="staffInput" id="staffInput" class="form-select" aria-label="Default select example">
-          <option value="0">Please choose a staff name</option>
-          {% for staff in staffInfo %}
-            <option name="staffInput" value="{{staff['emp_id']}}">{{staff['emp_id']}}</option>
-          {% endfor %}
-        </select>
-      </div>
-
+    <form action="{{ url_for('staff_availablity')}}" method="post" class="d-flex flex-column bd-highlight mb-3" 
+    id="addAvailability" onsubmit="addNewAvailability()">
       <div class="p-2 bd-highlight my-3">
         <div class="d-flex flex-column">
-          <label class="form-label" for="location">Location</label>
-          <input class="form-control" type="text" id="location" name="location" placeholder="Enter shift location" value="{{request.form.location}}">
-        </div>
-      </div>
-
-      <div class="p-2 bd-highlight my-3">
-        <div class="d-flex flex-column">
-          <label class="form-label" for="startDate">Date</label>
-          <input class="form-select" type="text" id="startDate" name="startDate" placeholder="Please select Date" value="{{request.form.startDate}}">
+          <label class="form-label">Date</label>
+          <input class="form-select" type="text" id="startDate" name="startDate" 
+          value="{{request.form.startDate}}">
         </div>
       </div>
 
 
       <div class="p-2 bd-highlight my-3">
         <div class="d-flex flex-column">
-          <label class="form-label">Start</label>
+          <label class="form-label" for="startTime">Start</label>
           <input class="form-select" type="text" id="startTime" name="startTime" placeholder="Please select Date Time" value="{{request.form.startTime}}">
         </div>
       </div>
@@ -127,78 +121,84 @@
         </div>
       </div>
 
+      <div class="p-2 bd-highlight my-3">
+        <div class="d-flex flex-column">
+          <label class="form-label">Notes</label>
+          <textarea id="notes" placeholder="Please put any comments here." name="notes" cols="50" class="form-control" value="{{request.form.notes}}"></textarea>
+        </div>
+      </div>
+
+
       <div class="p-2 bd-highlight my-5">
         <div class="d-flex justify-content-evenly">
           <button type="button" class="btn btn-outline-secondary" id="close-btn" href="javascript:void(0)"
             class="closebtn" onclick="closeNav()">Cancel</button>
-          <button type="submit" class="btn btn-warning">Submit</button>
+          <button type="submit" id="submit-btn" name="availabilityForm" class="btn btn-warning">Submit</button>
         </div>
       </div>
 
       <div class="alert alert-danger" id="error" style="display:none;" role="alert">
         Please fill out all required fields.
       </div>
+
+      <div class="alert alert-danger" id="timeError" style="display:none;" role="alert">
+        Invalid Start/End time, please change it.
+      </div>
       
     </form>
   </div>
 
 
-  <!-- Main Content -->
+
+  <!--------------------- MAIN CONTENT ----------------------------------->
   <div id="main" class="container-fluid">
     <div class="row d-flex justify-content-center ">
       <main class="col-md-12 ms-sm-1 col-lg-10 px-md-4">
-        <div
-          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Welcome, {{current_user}}</h1>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Welcome to, {{current_user}}</h1>
+          
+          <!-- Backend request: Change color if notification is more than 0 -->
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
             Notifications <span class="badge badge-light"></span>
           </button>
         </div>
 
+          
+
+
         <!-- First row of buttons -->
         <div class="row m-0">
           <div class="col px-0 ">
             <a id="dashboard-btn" class="btn btn-primary btn-large active px-0 border-right " aria-pressed="true"
-              href="{{ url_for('home')}}" role="button" style="width:100%">Dashboard</a>
+              href="{{ url_for('staff_availablity')}}" role="button" style="width:100%">Dashboard</a>
           </div>
           <div class="col px-0 ">
-            <a id="managers-btn" class="btn btn-light btn-large px-0 border-right" 
-            href="{{ url_for('managers')}}" role="button"
-              style="width:100%">Managers</a> 
-          </div>
-          <div class="col px-0">
-            <a id="managers-btn" class="btn btn-light btn-large px-0" 
-            href="{{ url_for('staff')}}" role="button"
-              style="width:100%">Staff</a>
-          </div>
-          <div class="col px-0 ">
-            <a id="managers-btn" class="btn btn-light btn-large px-0 border-right" 
-            href="{{ url_for('shifts_allocated')}}" role="button"
-              style="width:100%">Shifts Allocated</a> 
+            <a id="dashboard-btn" class="btn btn-primary btn-large px-0 border-right " aria-pressed="true"
+              href="{{ url_for('staff_shifts')}}" role="button" style="width:100%">My Shifts</a>
           </div>
         </div>
 
 
         <!-- Second row of buttons -->
         <div class="lg-btn-row row justify-content-between my-5 m-0">
-          <a href="https://google.com" id="staff-lg-btn" class="col-4">
+          
+<!--           <a href="#" id="staff-lg-btn" class="col-4">
             <div class="row justify-content-between">
               <img class="col-3 my-0 py-0" src="../static/images/users.svg" alt="Bootstrap" width="60" height="60">
               <p class="col-3 my-0 py-0">Staff</p>
               <p class="col-6 my-0 py-0"><span style="text-decoration: none">10</span></p>
             </div>
           </a>
-
-          <a href="https://google.com" id="managers-lg-btn" class="col-4">
+ -->
+<!--           <a href="#" id="managers-lg-btn" class="col-4">
             <div class="row justify-content-between">
               <img class="col-3 my-0 py-0" src="../static/images/managers.svg" alt="Bootstrap" width="60" height="60">
-              <p class="col-4 my-0 py-0">Managers</p>
+              <p class="col-3 my-0 py-0">Managers</p>
               <p class="col-5 my-0 py-0"><span style="text-decoration: none">2</span></p>
             </div>
           </a>
+ -->
 
-
-          <!-- <a id="add-btn" class="col-3" onclick='addShift()' style="cursor: pointer" > -->
           <a id="add-btn" class="col-3" onclick='openNav()' style="cursor: pointer">
             <i class="bi bi-plus-lg"></i>
           </a>
@@ -206,11 +206,13 @@
 
         <!-- FullCalendar -->
         <div id='calendar' style="background-color: white"></div>
+        
       </main>
     </div>
   </div>
 
-    <!------------ Modal ------------------->
+
+  <!------------ Modal ------------------->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -225,23 +227,22 @@
                 <th scope="col">#</th>
                 <th scope="col">Shift</th>
                 <th scope="col">Location</th>
-                <th scope="col">Status</th>
-                <!-- <th scope="col">Actions</th> -->
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {% for shift in staff_notifications %}
+              {% for shift in new_shifts %}
                 <tr>
                   <th scope="row">{{ loop.index }}</th>
                   <td>{{ shift['date'] ~ '  ' ~ shift['start_time'] ~ ' - ' ~ shift['end_time']}}</td>
                   <td>{{ shift['location'] }}</td>
-                  {% if shift['status'] == 'Accepted' %}
-                    <td class="bg-success text-center">Accepted</td>
-                  {% elif shift['status'] == 'Not Accepted' %}
-                    <td class="bg-warning text-center">Not Accepted</td>
-                  {% elif shift['status'] == 'Declined' %}
-                    <td class="bg-danger text-center">Declined</td>
-                  {% endif %}  
+                  <td>
+                     <form action="{{ url_for('staff_availablity')}}" method="post">
+                      <input type="hidden" name="shift_id" value={{shift['shift_id']}}>
+                      <button id="accept-btn" name ="accept-btn" type="submit" class="btn btn-warning btn-sm">Accept</button>
+                      <button id="decline-btn" name="decline-btn"  type="submit" class="btn btn-outline-secondary btn-sm my-2">Decline</button>
+                    </form>
+                  </td>
                 </tr>
               {% endfor %}  
             </tbody>
@@ -257,21 +258,11 @@
   <!-- JS SCRIPT -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="../static/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="../static/js/dashboard.js"></script>
-
-
-  <!-- TUI-Calendar -->
-  <script src="https://uicdn.toast.com/tui.code-snippet/v1.5.2/tui-code-snippet.min.js"></script>
-  <script src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.min.js"></script>
-  <script src="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.min.js"></script>
-  <script src="https://uicdn.toast.com/tui-calendar/latest/tui-calendar.js"></script>
- 
-
+  <script src="../static/js/staff-dashboard.js"></script>
 
   <!-- FullCalendar -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.0/main.min.js"></script>
-  <script src="../static/js/fullcalendar.js"></script>
-
+  
   <!-- flatpickr -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
